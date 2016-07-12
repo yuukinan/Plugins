@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>日历 - yn</title>
+    <style>
+        table{display:none;text-align: center;} 
+        th{background-color: red;
+           color:white;
+           font-size: 18px;}
+        th,td{width:45px;}
+        table{width:360px;
+              height: 280px;}
+        tr{line-height:30px;}
+        td{background-color: #ddd;}
+        #today{background-color: red;}
+        #yearReduce,#yearAdd,#monthReduce,#monthAdd:hover{
+            cursor: pointer;
+        }
+        #chooseYear,#chooseMonth:hover{cursor: pointer;}
+        .tds:hover{cursor: pointer;background-color: #f62;}
+        #input_date{height: 25px;margin-left: 100px;}
+        #calendar{width: 400px;margin: 0 auto;}      
+    </style>
+</head>
+
+<body>
+	<div id="calendar">
+		<div>
+			<input id="input_date" type="text" placeholder="请输入日期"/>
+		</div>
+		<table id="table">
+			<thead>
+				<th id="theadLeft">
+                    <span id="yearReduce"><</span><span>年</span><span id="yearAdd">></span>
+				</th>
+				<th id="theadBody" colspan="5">
+					<span id="chooseYear"></span><span>年</span>
+					<span id="chooseMonth"></span><span>月</span>
+				</th>
+				<th id="theadRight">
+                    <span id="monthReduce"><</span><span>月</span><span id="monthAdd">></span>
+				</th>
+			</thead>
+			<tbody id="tableBody">
+				<tr id="tableTitle">
+					<th>Sun</th>
+					<th>Mon</th>
+					<th>Tue</th>
+					<th>Wed</th>
+					<th>Thu</th>
+					<th>Fri</th>
+					<th>Sat</th>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+    <script>
+         function g(id) {
+         	return document.getElementById(id);
+         }
+         
+         var yearReduce  = g("yearReduce");
+         var yearAdd     = g("yearAdd");
+         var monthReduce = g("monthReduce");
+         var monthAdd    = g("monthAdd");
+
+         var chooseYear      = g("chooseYear");
+         var chooseMonth     = g("chooseMonth");
+         var input = g("input_date");
+         var tableBody = g("tableBody");
+         var table =g("table");
+
+         //设置初始值
+         var today = new Date();
+         var year  = today.getFullYear();
+         var month = today.getMonth(); 
+         var date  = today.getDate();
+        // console.log(month);
+        //获取当前月份的天数(month+1)
+         var DayNum = new Date(year, month+1, 0).getDate();
+        // console.log(DayNum);
+        //获取当前月份第一天的星期数(month)
+         var DayWeek = new Date(year, month, 1).getDay();
+        // console.log(DayWeek);
+
+        var chooseYearText  = document.createTextNode(year);
+        var chooseMonthText = document.createTextNode(month+1);
+        chooseYear.appendChild(chooseYearText);
+        chooseMonth.appendChild(chooseMonthText);
+         
+
+
+        //确定某个月第一天是星期几
+        function getFirstDayWeek() {
+            var yearMonth = new Date();
+            var yearText  = chooseYear.innerHTML;
+            var monthText = chooseMonth.innerHTML;
+            yearMonth.setFullYear(yearText, monthText-1, 1);
+            DayWeek = yearMonth.getDay();
+            return DayWeek; 
+        }
+        
+        //确定一个月有多少天
+        function getDayNumber() {
+            var yearText = chooseYear.innerHTML;
+            var monthText = chooseMonth.innerHTML;
+        //  console.log(g("disMonth").value);
+            if(monthText == 1 || monthText == 3 || monthText == 5 || monthText == 7 || monthText == 8 || monthText == 10 || monthText == 12) {
+                return 31;
+            }else if(monthText == 4 || monthText == 6 || monthText == 9 || monthText == 11) {
+                return 30;
+            }else if((yearText % 100 != 0 && yearText % 4 == 0) || yearText %  400 == 0) {
+                return 29;
+            }else {
+                return 28;
+            }
+        }
+        //创建日历table
+        function createTable() {
+
+            for(var i=0; i<6; i++) {
+                var tableTr = document.createElement("tr");
+                for(var j=0; j<7; j++) {
+                    var tableTd = document.createElement("td");
+                    tableTr.appendChild(tableTd);
+                }
+                tableBody.appendChild(tableTr);
+            }
+            table.appendChild(tableBody);
+        }
+        
+        //将天数填到table里面去
+        function createTableText() {
+
+            DayWeek = getFirstDayWeek();
+            DayNum  = getDayNumber();
+
+            //tableClear;
+            var tableTds = document.getElementsByTagName("td");
+            for(var i = 0; i < tableTds.length; i++) {
+                if(tableTds[i].firstChild) {
+                    tableTds[i].removeChild(tableTds[i].firstChild);
+                }
+            }
+
+            for(var k=1,week=DayWeek; k<DayNum+1; k++,week++){
+            //    var tableTds = document.getElementsByTagName("td");
+                var tableTdText = document.createTextNode(k);
+                tableTds[week].appendChild(tableTdText);
+                tableTds[week].setAttribute("class","tds");
+            }
+           //  console.log(date);
+            for(var m=1; m<DayNum+1; m++){
+                if(tableTds[m].innerHTML==date) {tableTds[m].id="today";break;}
+            }
+        }
+                   
+        function clearId() {
+            var tableTds = document.getElementsByTagName("td");
+            for(var n=0; n<tableTds.length; n++) {
+                tableTds[n].id = " ";
+            }
+        }
+
+        function clearClass() {
+            var tableTds = document.getElementsByTagName("td");
+            for(var n=0; n<tableTds.length; n++) {
+                tableTds[n].setAttribute("class","");
+            }
+        }
+        
+        //显示日历头部日期信息
+        function showTitle() {
+ 
+           // chooseYear.removeChild(chooseYearText);
+          //  chooseMonthText.removeChild(chooseMonthText);
+        //    var chooseYearText  = document.createTextNode(year);
+       //     var chooseMonthText = document.createTextNode(month+1);
+        //    chooseYear.appendChild(chooseYearText);
+       //     chooseMonth.appendChild(chooseMonthText);
+
+            //在input中显示日期信息
+            input.value=chooseYear.innerHTML + "年" + parseInt(chooseMonth.innerHTML) + "月";
+        }
+        
+        function chooseDay(){
+            var tableTds = document.getElementsByClassName("tds");
+            for(var m=0; m<tableTds.length; m++) {
+                (function(idx) {
+                    var tdText = tableTds[idx].innerHTML;
+                    //  console.log(tdText)
+                    tableTds[idx].onclick = function() {
+                   //  console.log(tableTds[idx].innerHTML);
+                    var selectDay = tableTds[idx].innerHTML;
+                    input.value=chooseYear.innerHTML + "年" + parseInt(chooseMonth.innerHTML) + "月" + selectDay + "日";
+                
+                    for(var n=0; n<tableTds.length; n++) {
+                    tableTds[n].id = " ";
+                    } 
+                    tableTds[idx].id="today";
+                    }
+                })(m)
+            } 
+        }
+
+        createTable();
+        
+        input.addEventListener('click',function(e){e.stopPropagation()},false);
+        input.onclick = function() {
+
+            if(window.getComputedStyle(table)["display"] == "none") {
+                table.style.display = "block";
+            //  createTable();
+                createTableText();
+                showTitle();
+            }
+            chooseDay();
+
+            //选择日期
+        }
+        
+        table.onclick = function(event) {
+            window.event ? window.event.cancelBubble = true : evt.stopPropagation();
+            table.style.display = "block";
+        }
+
+        document.onclick = function() {
+            if(window.getComputedStyle(table)["display"] == "block") {
+                table.style.display = "none";
+                clearId();
+            }
+        }
+ 
+        var chooseYearText = chooseYear.innerHTML;
+        chooseYear.onclick = function() {
+            
+            //console.log(chooseYearText);
+            chooseYear.innerHTML = "<select id='selectYear'></select>"
+            var selectYear = g("selectYear");
+
+            var optionSuggest = document.createElement("option");
+            var optionSuggestTest = document.createTextNode("选择年份");
+            optionSuggest.appendChild(optionSuggestTest);
+            selectYear.appendChild(optionSuggest);
+
+            for(var i = 1950; i <= 2050; i++) {
+                var optionYear = document.createElement("option");
+            //  optionYear.value = String(i);
+                var optionYearText = document.createTextNode(String(i));
+                optionYear.appendChild(optionYearText);
+                selectYear.appendChild(optionYear);
+            }
+
+            var options = document.getElementsByTagName("option");
+        //    for(var j = 0; j < options.length; j++) {
+        //        if(options[j].innerHTML == chooseYearText) {
+        //            options[j].selected = true;
+        //        }
+        //    }
+        
+            selectYear.onclick = function(event) {
+                window.event ? window.event.cancelBubble = true : evt.stopPropagation();
+            }             
+
+        //  var options = document.getElementsByTagName("option");
+            /*    for(var m=0; m<options.length; m++) {
+                   (function(idx) {
+                    
+                    options[idx].onclick = function() {
+                        window.event ? window.event.cancelBubble = true : evt.stopPropagation();
+                        console.log(options[1])
+                        var selectYear = options[idx].innerHTML;
+                        console.log(selectYear);
+                    }
+                   })(m)
+                }  */
+
+            selectYear.onchange = function() {
+                window.event ? window.event.cancelBubble = true : evt.stopPropagation();
+                for(var j = 0; j < options.length; j++)
+                if(options[j].selected == true){
+                    var selectYear = options[j].innerHTML;
+                //    console.log(selectYear);
+                chooseYear.removeChild(chooseYear.firstChild);
+                chooseYear.innerHTML = selectYear;
+                clearId();
+                clearClass();
+                createTableText();
+                showTitle();
+                chooseDay();
+                }
+            }
+
+            
+        }
+       
+        var chooseMonthText = chooseMonth.innerHTML;
+        chooseMonth.onclick = function() {
+            
+            //console.log(chooseYearText);
+            chooseMonth.innerHTML = "<select id='selectMonth'></select>"
+            var selectMonth = g("selectMonth");
+
+            var optionSuggest = document.createElement("option");
+            var optionSuggestTest = document.createTextNode("选择月份");
+            optionSuggest.appendChild(optionSuggestTest);
+            selectMonth.appendChild(optionSuggest);
+
+            for(var i = 1; i <= 12; i++) {
+                var optionMonth = document.createElement("option");
+            //  optionYear.value = String(i);
+                var optionMonthText = document.createTextNode(String(i));
+                optionMonth.appendChild(optionMonthText);
+                selectMonth.appendChild(optionMonth);
+            }
+
+            var options = document.getElementsByTagName("option");
+        
+            selectMonth.onclick = function(event) {
+                window.event ? window.event.cancelBubble = true : evt.stopPropagation();
+            }             
+
+            selectMonth.onchange = function() {
+                window.event ? window.event.cancelBubble = true : evt.stopPropagation();
+                for(var j = 0; j < options.length; j++)
+                if(options[j].selected == true){
+                    var selectMonth = options[j].innerHTML;
+                //    console.log(selectYear);
+                chooseMonth.removeChild(chooseMonth.firstChild);
+                chooseMonth.innerHTML = selectMonth;
+                clearId();
+                clearClass();
+                createTableText();
+                showTitle();
+                chooseDay();
+                }
+            }
+
+            
+        }
+        
+
+        yearReduce.onclick = function() {
+            chooseYear.innerHTML = chooseYear.innerHTML - 1;
+            getFirstDayWeek();
+            getDayNumber();
+            clearId();
+            clearClass();
+            createTableText();
+            showTitle();
+            chooseDay();
+        }
+        yearAdd.onclick = function(){
+            chooseYear.innerHTML = parseInt(chooseYear.innerHTML) + 1;
+            getFirstDayWeek();
+            getDayNumber();
+            clearId();
+            clearClass();
+            createTableText();
+            showTitle();
+            chooseDay();
+        }
+        monthReduce.onclick = function() {
+            chooseMonth.innerHTML = chooseMonth.innerHTML - 1;
+            if(chooseMonth.innerHTML < 1){
+                chooseMonth.innerHTML = 12;
+                chooseYear.innerHTML = chooseYear.innerHTML - 1;
+            }
+            getFirstDayWeek();
+            getDayNumber();
+            clearId();
+            clearClass();
+            createTableText();
+            showTitle();
+            chooseDay();
+        }
+        monthAdd.onclick = function() {
+            chooseMonth.innerHTML = parseInt(chooseMonth.innerHTML) + 1;
+            if(chooseMonth.innerHTML > 12){
+                chooseMonth.innerHTML = 1;
+                chooseYear.innerHTML = parseInt(chooseYear.innerHTML) + 1;
+            }
+            getFirstDayWeek();
+            getDayNumber();
+            clearId();
+            clearClass();
+            createTableText();
+            showTitle();
+            chooseDay();
+        }
+
+    </script>
+</html>
