@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>瀑布流布局</title>
+	<meta charset="utf-8"/>
+    <style>
+        *{margin: 0; padding: 0;}
+        #main{position: relative;}
+        .box{padding: 15px 0 0 15px;
+        	 float:left;}
+        .pic{padding: 10px;
+             border:1px solid #ccc;
+             border-radius: 5px;
+             box-shadow: 0 0 5px #ccc;}
+        .pic img{width: 165px;
+                 height: auto;}
+    </style>
+</head>
+<body>
+	<div id="main">
+
+		<div class="box">
+			<div class="pic">
+				<img src="images/1.jpg"/>
+			</div>
+		</div>
+        <div class="box">
+			<div class="pic">
+				<img src="images/2.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/3.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/4.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/5.jpg"/>
+			</div>
+		</div>		
+		<div class="box">
+			<div class="pic">
+				<img src="images/6.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/7.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/8.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/9.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/10.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/11.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/12.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/13.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/14.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/15.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/16.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/17.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/18.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/19.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/20.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/21.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/22.jpg"/>
+			</div>
+		</div>
+		<div class="box">
+			<div class="pic">
+				<img src="images/23.jpg"/>
+			</div>
+		</div>															
+	</div>
+</body>
+    <script>
+        function waterfall(parent,box) {
+        	var main  = document.getElementById(parent);
+        	var boxes = document.getElementsByClassName(box);
+            //	console.log(boxes.length);
+            //计算整个页面显示的列数（页面宽/box的宽度）
+            var boxWidth = boxes[0].offsetWidth;
+            var cols = Math.floor(document.documentElement.clientWidth/boxWidth);
+         //   console.log(cols);
+            //设置main的宽度（并设置居中）
+            main.style.cssText = 'width:'+boxWidth*cols +'px;margin: 0 auto';
+            //最初是第一行图片的高度(之后会存储每列的高度)
+            var hArray=[];
+            for(var i=0;i<boxes.length;i++){
+            	if(i<cols){
+            		hArray.push(boxes[i].offsetHeight);
+            	}else{
+            		//Math.min方法后面的参数只能是一组数，而不能是数组，
+            		//所以通过apply方法改变this值的指向
+            		var minH = Math.min.apply(null, hArray);
+            		var index = getMinhIndex(hArray,minH);
+            		boxes[i].style.position = 'absolute';
+            		boxes[i].style.top  = minH + 'px';
+            		//boxes[i].style.left = boxWidth*index + 'px';
+            		boxes[i].style.left = boxes[index].offsetLeft + 'px';
+            		hArray[index] += boxes[i].offsetHeight;
+                }
+            }
+            //console.log(index);
+            //console.log(minH);
+            // console.log(hArray);
+
+        }
+
+        function getMinhIndex(arr,val) {
+        	for(var i in arr){
+        		if(arr[i] == val){
+        			return i;
+        		}
+        	}
+        }
+
+        //检测是否具备了加载数据块的条件
+        function checkScrollSlide() {
+        	var main = document.getElementById("main");
+        	//寻找最后一个数据块
+        	var boxes = document.getElementsByClassName("box");
+        	var lastBoxHeight = boxes[boxes.length-1].offsetTop + 
+        	Math.floor(boxes[boxes.length-1].offsetHeight/2);
+        	//获取页面滚走的距离
+        	var scrollDistance = document.body.scrollTop || 
+        	document.documentElement.scrollTop;
+        //	console.log(scrollDistance);
+            //获取浏览器窗口的高
+            var h = document.body.clientHeight || 
+            document.documentElement.clientHeight;
+        //    console.log(h);
+            return (lastBoxHeight<scrollDistance+h)?true:false;
+        }
+
+        window.onload = function(){
+        	waterfall("main","box");
+            //模拟后台获取的json数据
+            var dataInt = {"data":[{"src":'1.jpg'},{"src":"2.jpg"},{"src":"3.jpg"},{"src":"4.jpg"}]};
+        	window.onscroll = function() {
+        		var main = document.getElementById("main");
+        		if(checkScrollSlide){
+        			//将数据块渲染到当前页面的尾部
+        			//遍历从后台获取的数据
+        			for(var i=0; i<dataInt.data.length;i++) {
+        				var oBox = document.createElement('div');
+        				oBox.className="box";
+        				main.appendChild(oBox);
+        				var oPic = document.createElement('div');
+        				oPic.className="pic";
+        				oBox.appendChild(oPic);
+        				var oImage = document.createElement("img");
+        				oImage.src = "images/"+dataInt.data[i].src;
+        				oPic.appendChild(oImage); 
+        			}
+        			waterfall("main","box");
+        		}
+        	}
+        }
+    </script>
+</html>
